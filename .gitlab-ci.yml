@@ -1,5 +1,5 @@
 #
-# GitLab CI/CD Pipeline for deploying DreamHouse App on Salesforce DX
+# GitLab CI/CD Pipeline for deploying 
 #
 before_script:
  # Decrypt server key
@@ -52,8 +52,11 @@ testing:
  - sfdx force:apex:test:run --targetusername $SCRATCH_ORG_ALIAS --wait 10 --resultformat human --codecoverage --testlevel $TESTLEVEL
  # Delete Scratch Org
  - sfdx force:org:delete --targetusername $SCRATCH_ORG_ALIAS --noprompt
- 
- deploy:
+
+#
+# Deploy to production -- Stage 2
+#
+auto-deploy:
  stage: deploy
  only:
   variables:

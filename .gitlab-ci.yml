@@ -35,8 +35,12 @@ stages:
 code-testing:
  stage: code-testing
  only:
+  refs:
+    - merge_requests
   variables:
-    - $CI_COMMIT_REF_NAME == 'production'
+    - $CI_MR_TARGET_BRANCH == 'production'
+  #variables:
+  #  - $CI_COMMIT_REF_NAME == 'production'
  script:
  # Authenticate to the Dev Hub using the server key
  - sfdx force:auth:jwt:grant --clientid $SF_CONSUMER_KEY --jwtkeyfile assets/server.key --username $SF_USERNAME --setdefaultdevhubusername --setalias HubOrg

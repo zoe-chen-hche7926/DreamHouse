@@ -35,7 +35,7 @@ stages:
 code-testing:
  stage: code-testing
  only:
-    - merge_requests
+  merge_requests
   variables:
     - $CI_MR_TARGET_BRANCH == 'production'
 

@@ -35,8 +35,6 @@ stages:
 code-testing:
  stage: code-testing
  only:
-  refs:
-    - merge_requests
   variables:
     - $CI_MR_TARGET_BRANCH == 'production'
  script:
@@ -65,8 +63,6 @@ integration-testing:
      - SCRATCH_ORG_USERNAME.TXT
  stage: integration-testing
  only:
-  refs:
-    - merge_requests
   variables:
     - $CI_MR_TARGET_BRANCH == 'production'
  script:
@@ -105,8 +101,6 @@ integration-testing:
 app-deploy:
  stage: app-deploy
  only:
-  refs:
-    - merge_requests
   variables:
     - $CI_MR_TARGET_BRANCH == 'production'
  when: manual

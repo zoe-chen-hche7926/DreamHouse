@@ -35,11 +35,10 @@ stages:
 code-testing:
  stage: code-testing
  only:
-  ref:
-  - merge_requests
+  refs:
+    - merge_requests
   variables:
     - $CI_MR_TARGET_BRANCH == 'production'
-
   #variables:
   #  - $CI_COMMIT_REF_NAME == 'production'
  script:

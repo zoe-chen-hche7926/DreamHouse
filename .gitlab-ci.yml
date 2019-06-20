@@ -1,0 +1,69 @@
+#
+# GitLab CI/CD Pipeline for deploying 
+#
+before_script:
+ # Decrypt server key
+ - openssl aes-256-cbc -d -md md5 -in assets/server.key.enc -out assets/server.key -k $SERVER_KEY_PASSWORD
+ # Install jq
+ - apt update && apt -y install jq
+ # Setup SFDX environment variables
+ - export CLIURL=https://developer.salesforce.com/media/salesforce-cli/sfdx-linux-amd64.tar.xz
+ - export SFDX_AUTOUPDATE_DISABLE=false
+ - export SFDX_USE_GENERIC_UNIX_KEYCHAIN=true
+ - export SFDX_DOMAIN_RETRY=300
+ - export SFDX_DISABLE_APP_HUB=true
+ - export SFDX_LOG_LEVEL=DEBUG
+ - export ROOTDIR=force-app/main/default/
+ - export TESTLEVEL=RunLocalTests
+ - export SCRATCH_ORG_ALIAS=DreamHouse_Scratch
+ - export PACKAGEVERSION=""
+ # Install Salesforce CLI
+ - mkdir sfdx
+ - wget -qO- $CLIURL | tar xJ -C sfdx --strip-components 1
+ - "./sfdx/install"
+ - export PATH=./sfdx/$(pwd):$PATH
+ # Output CLI version and plug-in information
+ - sfdx --version
+ - sfdx plugins --core
+stages:
+ - testing
+ - deploy
+#
+# Create Scratch Org for code testing -- Stage 1
+#
+testing:
+ stage: testing
+ only:
+  variables:
+    - $CI_COMMIT_REF_NAME == 'production'
+ script:
+ # Authenticate to the Dev Hub using the server key
+ - sfdx force:auth:jwt:grant --clientid $SF_CONSUMER_KEY --jwtkeyfile assets/server.key --username $SF_USERNAME --setdefaultdevhubusername --setalias HubOrg
+ # Create scratch org
+ - sfdx force:org:create --targetdevhubusername HubOrg --setdefaultusername --definitionfile config/project-scratch-def.json --setalias $SCRATCH_ORG_ALIAS --wait 10 --durationdays 7
+ - sfdx force:org:display --targetusername $SCRATCH_ORG_ALIAS
+ # Push source to scratch org (This is with source code, all files, etc)
+ - sfdx force:source:push --targetusername $SCRATCH_ORG_ALIAS
+ # Assign DreamHouse permission set to scratch org default user
+ - sfdx force:user:permset:assign --targetusername $SCRATCH_ORG_ALIAS --permsetname DreamHouse
+ # Add sample data into app
+ - sfdx force:data:tree:import --plan data/sample-data-plan.json
+ # Unit Testing
+ - sfdx force:apex:test:run --targetusername $SCRATCH_ORG_ALIAS --wait 10 --resultformat human --codecoverage --testlevel $TESTLEVEL
+ # Delete Scratch Org
+ - sfdx force:org:delete --targetusername $SCRATCH_ORG_ALIAS --noprompt
+
+#
+# Deploy to production -- Stage 2
+#
+auto-deploy:
+ stage: deploy
+ only:
+  variables:
+    - $CI_COMMIT_REF_NAME == 'production'
+ script:
+ ## Authenticate with your playground or sandbox environment
+ - sfdx force:auth:jwt:grant --clientid $SF_CONSUMER_KEY --jwtkeyfile assets/server.key --username $SF_USERNAME --setdefaultdevhubusername --setalias HubOrg
+ ## Deploy to production
+ - sfdx force:source:deploy --targetdevhubusername HubOrg
+

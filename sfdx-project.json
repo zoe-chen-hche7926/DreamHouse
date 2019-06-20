@@ -3,7 +3,7 @@
         {
             "path": "force-app",
             "default": true,
-            "package": "dreamhouse",
+            "package": "DreamHouse",
             "versionNumber": "3.0.0.NEXT",
             "versionName": "Winter '19"
         }
@@ -12,8 +12,7 @@
     "sfdcLoginUrl": "https://login.salesforce.com",
     "sourceApiVersion": "45.0",
     "packageAliases": {
-        "dreamhouse": "0Ho1I000000XZDVSA4",
-        "dreamhouse@2.0.0-4": "04t1I0000036seVQAQ",
-        "dreamhouse@3.0.0-5": "04t1I0000036u98QAA"
+        "DreamHouse": "0Ho2v000000GmcKCAS",
+        "DreamHouse@3.0.0-1": "04t2v000001yBdjAAE"
     }
 }

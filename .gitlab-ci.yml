@@ -1,6 +1,11 @@
 #
 # GitLab CI/CD Pipeline for deploying DreamHouse App on Salesforce DX
 #
+variables:
+ SERVER_KEY_PASSWORD:"Password01"
+ SF_CONSUMER_KEY:"3MVG9G9pzCUSkzZt1ulooRCwi4VvDYfgUw2hPfvYSe01ixMZNL.4dAjW57vqQWUFN22x.0q8nqHw2lHlieDJF"
+ SF_USERNAME:"zoe.chen@systempartners.gitlab.demo.prod"
+ PACKAGE_NAME:"DreamHouse"
 before_script:
  # Decrypt server key
  - openssl aes-256-cbc -d -md md5 -in assets/server.key.enc -out assets/server.key -k $SERVER_KEY_PASSWORD
@@ -34,6 +39,9 @@ stages:
 #
 code-testing:
  stage: code-testing
+ variables:
+  SF_CONSUMER_KEY:"3MVG9G9pzCUSkzZt1ulooRCwi4VvDYfgUw2hPfvYSe01ixMZNL.4dAjW57vqQWUFN22x.0q8nqHw2lHlieDJF"
+  SF_USERNAME:"zoe.chen@systempartners.gitlab.demo.prod"
  script:
  # Authenticate to the Dev Hub using the server key
  - sfdx force:auth:jwt:grant --clientid $SF_CONSUMER_KEY --jwtkeyfile assets/server.key --username $SF_USERNAME --setdefaultdevhubusername --setalias HubOrg

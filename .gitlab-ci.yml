@@ -35,10 +35,8 @@ stages:
 code-testing:
  stage: code-testing
  only:
-  refs:
-    - merge_requests
   variables:
-    - $CI_MR_TARGET_BRANCH == 'production'
+    - $CI_COMMIT_REF_NAME == 'production'
  script:
  # Authenticate to the Dev Hub using the server key
  - sfdx force:auth:jwt:grant --clientid $SF_CONSUMER_KEY --jwtkeyfile assets/server.key --username $SF_USERNAME --setdefaultdevhubusername --setalias HubOrg
@@ -65,10 +63,8 @@ integration-testing:
      - SCRATCH_ORG_USERNAME.TXT
  stage: integration-testing
  only:
-  refs:
-    - merge_requests
   variables:
-    - $CI_MR_TARGET_BRANCH == 'production'
+    - $CI_COMMIT_REF_NAME == 'production'
  script:
  # Authenticate to the Dev Hub using the server key
  - sfdx force:auth:jwt:grant --clientid $SF_CONSUMER_KEY --jwtkeyfile assets/server.key --username $SF_USERNAME --setdefaultdevhubusername --setalias HubOrg
@@ -105,10 +101,8 @@ integration-testing:
 app-deploy:
  stage: app-deploy
  only:
-  refs:
-    - merge_requests
   variables:
-    - $CI_MR_TARGET_BRANCH == 'production'
+    - $CI_COMMIT_REF_NAME == 'production'
  when: manual
  script:
  ## Import the Scratch org UUID

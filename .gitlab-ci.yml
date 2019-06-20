@@ -34,6 +34,11 @@ stages:
 #
 code-testing:
  stage: code-testing
+ only:
+  refs:
+    - merge_requests
+  variables:
+    - $CI_MR_TARGET_BRANCH == 'production'
  script:
  # Authenticate to the Dev Hub using the server key
  - sfdx force:auth:jwt:grant --clientid $SF_CONSUMER_KEY --jwtkeyfile assets/server.key --username $SF_USERNAME --setdefaultdevhubusername --setalias HubOrg
@@ -59,6 +64,11 @@ integration-testing:
      - PACKAGE_VERSION_ID.TXT
      - SCRATCH_ORG_USERNAME.TXT
  stage: integration-testing
+ only:
+  refs:
+    - merge_requests
+  variables:
+    - $CI_MR_TARGET_BRANCH == 'production'
  script:
  # Authenticate to the Dev Hub using the server key
  - sfdx force:auth:jwt:grant --clientid $SF_CONSUMER_KEY --jwtkeyfile assets/server.key --username $SF_USERNAME --setdefaultdevhubusername --setalias HubOrg
@@ -66,7 +76,7 @@ integration-testing:
  - sfdx force:org:create --targetdevhubusername HubOrg --setdefaultusername --definitionfile config/project-scratch-def.json --setalias $SCRATCH_ORG_ALIAS --wait 10 --durationdays 7
  - sfdx force:org:display --targetusername $SCRATCH_ORG_ALIAS
  ## Create a package
- - sfdx force:package:create --name $PACKAGE_NAME --description "My Package" --packagetype Unlocked --path force-app --nonamespace --targetdevhubusername HubOrg
+ ##- sfdx force:package:create --name $PACKAGE_NAME --description "My Package" --packagetype Unlocked --path force-app --nonamespace --targetdevhubusername HubOrg
   ## Create packaged version
  - export PACKAGE_VERSION_ID="$(eval sfdx force:package:version:create --package $PACKAGE_NAME --installationkeybypass --wait 10 --json --targetdevhubusername HubOrg | jq '.result.SubscriberPackageVersionId' | tr -d '"')"
  ## Save your PACKAGE_VERSION_ID to a file for later use during deploy so you know what version to deploy
@@ -94,6 +104,11 @@ integration-testing:
 #
 app-deploy:
  stage: app-deploy
+ only:
+  refs:
+    - merge_requests
+  variables:
+    - $CI_MR_TARGET_BRANCH == 'production'
  when: manual
  script:
  ## Import the Scratch org UUID
